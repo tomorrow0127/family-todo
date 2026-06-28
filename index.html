@@ -11,7 +11,7 @@
       font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
       background: #f5f0eb;
       min-height: 100vh;
-      padding: 24px 16px;
+      padding: 16px 12px;
     }
 
     /* パスワード画面 */
@@ -21,44 +21,44 @@
       align-items: center;
       justify-content: center;
       min-height: 80vh;
-      gap: 16px;
+      gap: 12px;
     }
-    #password-screen h1 { font-size: 1.4rem; color: #3d2b1f; }
+    #password-screen h1 { font-size: 1.2rem; color: #3d2b1f; }
     #password-screen input {
-      padding: 12px;
+      padding: 10px;
       border: 2px solid #d4b8a0;
       border-radius: 8px;
-      font-size: 1rem;
-      width: 200px;
+      font-size: 0.95rem;
+      width: 180px;
       text-align: center;
       outline: none;
     }
     #password-screen input:focus { border-color: #a0714f; }
     #password-screen button {
-      padding: 12px 24px;
+      padding: 10px 20px;
       background: #a0714f;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
     }
-    #password-error { color: #e07070; font-size: 0.9rem; display: none; }
+    #password-error { color: #e07070; font-size: 0.85rem; display: none; }
 
     /* メイン画面 */
     #main-screen { display: none; }
 
-    h1 { text-align: center; font-size: 1.4rem; color: #3d2b1f; margin-bottom: 16px; }
+    h1 { text-align: center; font-size: 1.2rem; color: #3d2b1f; margin-bottom: 10px; }
 
     /* カテゴリタブ */
-    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
     .tab {
       flex: 1;
-      padding: 10px;
+      padding: 8px 4px;
       border: 2px solid #d4b8a0;
       border-radius: 8px;
       background: white;
-      font-size: 1rem;
+      font-size: 0.82rem;
       cursor: pointer;
       text-align: center;
       color: #a0714f;
@@ -66,44 +66,62 @@
     }
     .tab.active { background: #a0714f; color: white; border-color: #a0714f; }
 
+    /* ヘッダー右上 */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .settings-btn {
+      background: none;
+      border: 1px solid #d4b8a0;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      color: #a0714f;
+      cursor: pointer;
+    }
+    .settings-btn:hover { background: #f0e6da; }
+
     /* 入力エリア */
-    .input-area { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-    .input-row { display: flex; gap: 8px; }
+    .input-area { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .input-row { display: flex; gap: 6px; }
     .input-area input[type="text"] {
       flex: 1;
-      padding: 12px;
+      padding: 9px 10px;
       border: 2px solid #d4b8a0;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       background: #fff;
       outline: none;
     }
     .input-area input[type="text"]:focus { border-color: #a0714f; }
     .input-area button {
-      padding: 12px 18px;
+      padding: 9px 14px;
       background: #a0714f;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       white-space: nowrap;
     }
     .input-area button:hover { background: #7d5538; }
 
-    /* ラベルボタン群（入力・絞り込み共通） */
+    /* ラベルボタン群 */
     .label-btns {
       display: none;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 5px;
     }
     .label-btns.visible { display: flex; }
     .label-btn {
-      padding: 6px 12px;
-      border: 2px solid #d4b8a0;
-      border-radius: 20px;
+      padding: 4px 10px;
+      border: 1.5px solid #d4b8a0;
+      border-radius: 16px;
       background: white;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       cursor: pointer;
       color: #7d5538;
     }
@@ -113,35 +131,35 @@
     .filter-area {
       display: none;
       flex-direction: column;
-      gap: 6px;
-      margin-bottom: 16px;
+      gap: 5px;
+      margin-bottom: 10px;
     }
     .filter-area.visible { display: flex; }
-    .filter-label { font-size: 0.8rem; color: #a0714f; font-weight: bold; }
+    .filter-label { font-size: 0.75rem; color: #a0714f; font-weight: bold; }
 
     /* Todoリスト */
-    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
     .todo-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 7px;
       background: white;
-      padding: 12px 14px;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 9px 10px;
+      border-radius: 9px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
     }
     .todo-item input[type="checkbox"] {
-      width: 20px; height: 20px;
+      width: 18px; height: 18px;
       cursor: pointer;
       accent-color: #a0714f;
       flex-shrink: 0;
     }
-    .todo-item .todo-text { flex: 1; font-size: 1rem; color: #3d2b1f; }
+    .todo-item .todo-text { flex: 1; font-size: 0.88rem; color: #3d2b1f; }
     .todo-item.done .todo-text { text-decoration: line-through; color: #aaa; }
 
     .todo-label-tag {
-      font-size: 0.75rem;
-      padding: 2px 8px;
+      font-size: 0.7rem;
+      padding: 2px 7px;
       border-radius: 10px;
       background: #f0e6da;
       color: #7d5538;
@@ -153,9 +171,9 @@
       background: none;
       border: 1px solid #d4b8a0;
       border-radius: 4px;
-      width: 24px; height: 22px;
+      width: 22px; height: 19px;
       cursor: pointer;
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       color: #a0714f;
       line-height: 1;
     }
@@ -166,9 +184,9 @@
       background: none;
       border: none;
       color: #ccc;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       cursor: pointer;
-      padding: 0 2px;
+      padding: 0 1px;
       flex-shrink: 0;
     }
     .icon-btn:hover { color: #a0714f; }
@@ -177,27 +195,108 @@
     /* 編集モード */
     .todo-item .edit-input {
       flex: 1;
-      padding: 4px 8px;
+      padding: 3px 7px;
       border: 2px solid #a0714f;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 0.88rem;
       outline: none;
     }
 
-    /* 編集時ラベル選択 */
     .edit-label-row {
       display: none;
       flex-wrap: wrap;
       gap: 4px;
-      padding: 8px 14px;
+      padding: 6px 10px;
       background: #faf6f2;
-      border-radius: 0 0 10px 10px;
-      margin-top: -10px;
+      border-radius: 0 0 9px 9px;
+      margin-top: -7px;
     }
     .edit-label-row.visible { display: flex; }
 
-    .empty { text-align: center; color: #bbb; margin-top: 40px; font-size: 0.95rem; }
-    .status { text-align: center; font-size: 0.8rem; color: #bbb; margin-bottom: 12px; }
+    .empty { text-align: center; color: #bbb; margin-top: 32px; font-size: 0.88rem; }
+    .status { text-align: center; font-size: 0.72rem; color: #bbb; margin-bottom: 8px; }
+
+    /* ===== ラベル設定モーダル ===== */
+    #label-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    #label-modal.open { display: flex; }
+    .modal-box {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 18px;
+      width: 90%;
+      max-width: 360px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-box h2 { font-size: 1rem; color: #3d2b1f; margin-bottom: 14px; }
+    .modal-tab-section { margin-bottom: 16px; }
+    .modal-tab-title {
+      font-size: 0.82rem;
+      font-weight: bold;
+      color: #a0714f;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f0e6da;
+      padding-bottom: 4px;
+    }
+    .modal-label-list { list-style: none; display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+    .modal-label-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: #faf6f2;
+      border-radius: 7px;
+    }
+    .modal-label-item span { flex: 1; font-size: 0.85rem; color: #3d2b1f; }
+    .modal-del-btn {
+      background: none;
+      border: 1px solid #e0a0a0;
+      border-radius: 5px;
+      color: #e07070;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      cursor: pointer;
+    }
+    .modal-add-row { display: flex; gap: 6px; }
+    .modal-add-row input {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1.5px solid #d4b8a0;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .modal-add-row input:focus { border-color: #a0714f; }
+    .modal-add-row button {
+      padding: 6px 12px;
+      background: #a0714f;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .modal-close {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 10px;
+      background: #f0e6da;
+      color: #7d5538;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -212,48 +311,47 @@
 
   <!-- メイン画面 -->
   <div id="main-screen">
-    <h1>🏠 家族のTodo</h1>
+    <div class="header-row">
+      <h1 style="margin:0">🏠 家族のTodo</h1>
+      <button class="settings-btn" onclick="openLabelModal()">⚙️ ラベル設定</button>
+    </div>
     <p class="status" id="status">接続中...</p>
 
     <div class="tabs">
       <button class="tab active" id="tab-かいもの" onclick="switchTab('かいもの', this)">🛒 かいもの</button>
       <button class="tab" id="tab-おでかけ" onclick="switchTab('おでかけ', this)">🚗 おでかけ</button>
+      <button class="tab" id="tab-そのほか" onclick="switchTab('そのほか', this)">📝 そのほか</button>
     </div>
 
-    <!-- 入力エリア -->
     <div class="input-area">
       <div class="input-row">
         <input type="text" id="new-todo" placeholder="やることを入力..." />
         <button onclick="addTodo()">追加</button>
       </div>
-      <div class="label-btns visible" id="input-label-btns">
-        <button class="label-btn selected" onclick="selectInputLabel(this, '')">ラベルなし</button>
-        <button class="label-btn" onclick="selectInputLabel(this, 'コストコ')">コストコ</button>
-        <button class="label-btn" onclick="selectInputLabel(this, '無印良品')">無印良品</button>
-        <button class="label-btn" onclick="selectInputLabel(this, 'カルディ')">カルディ</button>
-        <button class="label-btn" onclick="selectInputLabel(this, 'ダイレックス')">ダイレックス</button>
-      </div>
+      <div class="label-btns" id="input-label-btns"></div>
     </div>
 
-    <!-- 絞り込みエリア -->
-    <div class="filter-area visible" id="filter-area">
+    <div class="filter-area" id="filter-area">
       <span class="filter-label">🔍 絞り込み</span>
-      <div class="label-btns visible" id="filter-label-btns">
-        <button class="label-btn selected" onclick="selectFilterLabel(this, '')">すべて</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, 'コストコ')">コストコ</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, '無印良品')">無印良品</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, 'カルディ')">カルディ</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, 'ダイレックス')">ダイレックス</button>
-      </div>
+      <div class="label-btns visible" id="filter-label-btns"></div>
     </div>
 
     <ul class="todo-list" id="todo-list"></ul>
     <p class="empty" id="empty-msg" style="display:none">やることはありません 🎉</p>
   </div>
 
+  <!-- ラベル設定モーダル -->
+  <div id="label-modal">
+    <div class="modal-box">
+      <h2>⚙️ ラベル設定</h2>
+      <div id="modal-content"></div>
+      <button class="modal-close" onclick="closeLabelModal()">とじる</button>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDHjpD3vC_bl_vEoymo1ga90Fg2dj3PdGc",
@@ -268,10 +366,25 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // タブ定義
+    const TABS = [
+      { key: 'かいもの', label: '🛒 かいもの' },
+      { key: 'おでかけ', label: '🚗 おでかけ' },
+      { key: 'そのほか', label: '📝 そのほか' },
+    ];
+
+    // デフォルトラベル
+    const DEFAULT_LABELS = {
+      'かいもの': ['コストコ', '無印良品', 'カルディ', 'ダイレックス'],
+      'おでかけ': [],
+      'そのほか': ['おみやげ', 'ようちえん'],
+    };
+
     let currentTab = 'かいもの';
     let selectedInputLabel = '';
     let selectedFilterLabel = '';
     let todosData = {};
+    let labelsData = {}; // { かいもの: [...], おでかけ: [...], そのほか: [...] }
 
     // パスワード
     window.checkPassword = function() {
@@ -289,44 +402,93 @@
     });
 
     function initApp() {
-      const todosRef = ref(db, 'todos');
       document.getElementById('status').textContent = '✅ 接続済み';
-      onValue(todosRef, snapshot => {
+
+      // ラベル監視
+      onValue(ref(db, 'labels'), snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          labelsData = val;
+        } else {
+          // 初回：デフォルトをFirebaseに書き込む
+          labelsData = JSON.parse(JSON.stringify(DEFAULT_LABELS));
+          set(ref(db, 'labels'), labelsData);
+        }
+        renderLabelBtns();
+        renderList();
+      });
+
+      // Todo監視
+      onValue(ref(db, 'todos'), snapshot => {
         todosData = snapshot.val() || {};
         renderList();
       });
     }
 
+    // 現在のタブのラベル一覧
+    function currentLabels() {
+      return labelsData[currentTab] || [];
+    }
+
+    // ラベルボタン描画（入力用・絞り込み用）
+    function renderLabelBtns() {
+      const labels = currentLabels();
+      const hasLabels = labels.length > 0;
+
+      // 入力用
+      const inputBtns = document.getElementById('input-label-btns');
+      inputBtns.innerHTML = '';
+      if (hasLabels) {
+        inputBtns.classList.add('visible');
+        const noneBtn = makeBtn('ラベルなし', '', selectedInputLabel === '', 'input');
+        inputBtns.appendChild(noneBtn);
+        labels.forEach(l => inputBtns.appendChild(makeBtn(l, l, selectedInputLabel === l, 'input')));
+      } else {
+        inputBtns.classList.remove('visible');
+        selectedInputLabel = '';
+      }
+
+      // 絞り込み用
+      const filterArea = document.getElementById('filter-area');
+      const filterBtns = document.getElementById('filter-label-btns');
+      filterBtns.innerHTML = '';
+      if (hasLabels) {
+        filterArea.classList.add('visible');
+        const allBtn = makeBtn('すべて', '', selectedFilterLabel === '', 'filter');
+        filterBtns.appendChild(allBtn);
+        labels.forEach(l => filterBtns.appendChild(makeBtn(l, l, selectedFilterLabel === l, 'filter')));
+      } else {
+        filterArea.classList.remove('visible');
+        selectedFilterLabel = '';
+      }
+    }
+
+    function makeBtn(text, value, isSelected, type) {
+      const b = document.createElement('button');
+      b.className = 'label-btn' + (isSelected ? ' selected' : '');
+      b.textContent = text;
+      b.addEventListener('click', () => {
+        if (type === 'input') {
+          selectedInputLabel = value;
+          document.querySelectorAll('#input-label-btns .label-btn').forEach(x => x.classList.remove('selected'));
+        } else {
+          selectedFilterLabel = value;
+          document.querySelectorAll('#filter-label-btns .label-btn').forEach(x => x.classList.remove('selected'));
+          renderList();
+        }
+        b.classList.add('selected');
+      });
+      return b;
+    }
+
     // タブ切り替え
     window.switchTab = function(tab, btn) {
       currentTab = tab;
+      selectedInputLabel = '';
       selectedFilterLabel = '';
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-
-      const isKaimono = tab === 'かいもの';
-      document.getElementById('input-label-btns').classList.toggle('visible', isKaimono);
-      document.getElementById('filter-area').classList.toggle('visible', isKaimono);
-
-      // 絞り込みリセット
-      document.querySelectorAll('#filter-label-btns .label-btn').forEach(b => b.classList.remove('selected'));
-      document.querySelector('#filter-label-btns .label-btn').classList.add('selected');
-
-      renderList();
-    };
-
-    // 入力ラベル選択
-    window.selectInputLabel = function(btn, label) {
-      selectedInputLabel = label;
-      document.querySelectorAll('#input-label-btns .label-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-    };
-
-    // 絞り込みラベル選択
-    window.selectFilterLabel = function(btn, label) {
-      selectedFilterLabel = label;
-      document.querySelectorAll('#filter-label-btns .label-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
+      renderLabelBtns();
       renderList();
     };
 
@@ -340,7 +502,6 @@
         .filter(([, t]) => t.category === currentTab)
         .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0));
 
-      // 絞り込み
       if (selectedFilterLabel) {
         filtered = filtered.filter(([, t]) => t.label === selectedFilterLabel);
       }
@@ -352,7 +513,6 @@
       emptyMsg.style.display = 'none';
 
       filtered.forEach(([id, todo], index) => {
-        // アイテム本体
         const li = document.createElement('li');
         li.className = 'todo-item' + (todo.done ? ' done' : '');
         li.dataset.id = id;
@@ -368,13 +528,11 @@
         textSpan.className = 'todo-text';
         textSpan.textContent = todo.text;
 
-        // ラベルタグ
         const tag = document.createElement('span');
         tag.className = 'todo-label-tag';
         tag.style.display = todo.label ? '' : 'none';
         tag.textContent = todo.label || '';
 
-        // 上下ボタン
         const controls = document.createElement('div');
         controls.className = 'todo-controls';
         const upBtn = document.createElement('button');
@@ -390,14 +548,12 @@
         controls.appendChild(upBtn);
         controls.appendChild(downBtn);
 
-        // 編集ボタン
         const editBtn = document.createElement('button');
         editBtn.className = 'icon-btn';
         editBtn.textContent = '✏️';
         editBtn.title = '編集';
         editBtn.addEventListener('click', () => startEdit(li, id, todo));
 
-        // 削除ボタン
         const delBtn = document.createElement('button');
         delBtn.className = 'icon-btn delete';
         delBtn.textContent = '✕';
@@ -415,11 +571,9 @@
 
     // 編集開始
     function startEdit(li, id, todo) {
-      // テキストをinputに置き換え
       const textSpan = li.querySelector('.todo-text');
       const tag = li.querySelector('.todo-label-tag');
       const editBtn = li.querySelectorAll('.icon-btn')[0];
-      const controls = li.querySelector('.todo-controls');
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -428,19 +582,18 @@
       li.replaceChild(input, textSpan);
       tag.style.display = 'none';
 
-      // 編集ボタンを保存ボタンに
       editBtn.textContent = '💾';
       editBtn.title = '保存';
 
-      // かいものカテゴリのときラベル編集行を追加
       let editLabelRow = null;
       let editSelectedLabel = todo.label || '';
+      const labels = currentLabels();
 
-      if (currentTab === 'かいもの') {
+      if (labels.length > 0) {
         editLabelRow = document.createElement('div');
         editLabelRow.className = 'edit-label-row visible';
-        const labels = ['ラベルなし', 'コストコ', '無印良品', 'カルディ', 'ダイレックス'];
-        labels.forEach(l => {
+        const allLabels = ['ラベルなし', ...labels];
+        allLabels.forEach(l => {
           const val = l === 'ラベルなし' ? '' : l;
           const b = document.createElement('button');
           b.className = 'label-btn' + (editSelectedLabel === val ? ' selected' : '');
@@ -455,14 +608,10 @@
         li.after(editLabelRow);
       }
 
-      // 保存処理
       const save = () => {
         const newText = input.value.trim();
         if (!newText) return;
-        const updates = { text: newText };
-        if (currentTab === 'かいもの') {
-          updates.label = editSelectedLabel;
-        }
+        const updates = { text: newText, label: editSelectedLabel };
         update(ref(db, 'todos/' + id), updates);
         if (editLabelRow) editLabelRow.remove();
       };
@@ -492,10 +641,7 @@
       if (!text) return;
       const filtered = Object.values(todosData).filter(t => t.category === currentTab);
       const maxOrder = filtered.length > 0 ? Math.max(...filtered.map(t => t.order ?? 0)) : -1;
-      const newTodo = { text, done: false, category: currentTab, order: maxOrder + 1 };
-      if (currentTab === 'かいもの' && selectedInputLabel) {
-        newTodo.label = selectedInputLabel;
-      }
+      const newTodo = { text, done: false, category: currentTab, order: maxOrder + 1, label: selectedInputLabel || '' };
       push(ref(db, 'todos'), newTodo);
       input.value = '';
     };
@@ -503,6 +649,88 @@
     document.getElementById('new-todo').addEventListener('keydown', e => {
       if (e.key === 'Enter') window.addTodo();
     });
+
+    // ===== ラベル設定モーダル =====
+    window.openLabelModal = function() {
+      renderModalContent();
+      document.getElementById('label-modal').classList.add('open');
+    };
+    window.closeLabelModal = function() {
+      document.getElementById('label-modal').classList.remove('open');
+      renderLabelBtns();
+      renderList();
+    };
+    document.getElementById('label-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('label-modal')) window.closeLabelModal();
+    });
+
+    function renderModalContent() {
+      const container = document.getElementById('modal-content');
+      container.innerHTML = '';
+
+      TABS.forEach(({ key, label }) => {
+        const section = document.createElement('div');
+        section.className = 'modal-tab-section';
+
+        const title = document.createElement('div');
+        title.className = 'modal-tab-title';
+        title.textContent = label;
+        section.appendChild(title);
+
+        const ul = document.createElement('ul');
+        ul.className = 'modal-label-list';
+        const labels = labelsData[key] || [];
+
+        labels.forEach((lbl, i) => {
+          const li = document.createElement('li');
+          li.className = 'modal-label-item';
+          const span = document.createElement('span');
+          span.textContent = lbl;
+          const delBtn = document.createElement('button');
+          delBtn.className = 'modal-del-btn';
+          delBtn.textContent = '削除';
+          delBtn.addEventListener('click', () => {
+            const arr = labelsData[key] || [];
+            arr.splice(i, 1);
+            labelsData[key] = arr;
+            set(ref(db, 'labels/' + key), arr);
+            renderModalContent();
+          });
+          li.appendChild(span);
+          li.appendChild(delBtn);
+          ul.appendChild(li);
+        });
+        section.appendChild(ul);
+
+        // 追加行
+        const addRow = document.createElement('div');
+        addRow.className = 'modal-add-row';
+        const addInput = document.createElement('input');
+        addInput.type = 'text';
+        addInput.placeholder = 'ラベルを追加...';
+        const addBtn = document.createElement('button');
+        addBtn.textContent = '追加';
+        const doAdd = () => {
+          const val = addInput.value.trim();
+          if (!val) return;
+          const arr = labelsData[key] || [];
+          if (!arr.includes(val)) {
+            arr.push(val);
+            labelsData[key] = arr;
+            set(ref(db, 'labels/' + key), arr);
+          }
+          addInput.value = '';
+          renderModalContent();
+        };
+        addBtn.addEventListener('click', doAdd);
+        addInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(); });
+        addRow.appendChild(addInput);
+        addRow.appendChild(addBtn);
+        section.appendChild(addRow);
+
+        container.appendChild(section);
+      });
+    }
   </script>
 
 </body>
