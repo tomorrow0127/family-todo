@@ -215,6 +215,7 @@
     <div class="tabs">
       <button class="tab active" id="tab-かいもの" onclick="switchTab('かいもの', this)">🛒 かいもの</button>
       <button class="tab" id="tab-おでかけ" onclick="switchTab('おでかけ', this)">🚗 おでかけ</button>
+      <button class="tab" id="tab-そのほか" onclick="switchTab('そのほか', this)">📝 そのほか</button>
     </div>
 
     <!-- 入力エリア -->
@@ -270,17 +271,35 @@
     let selectedFilterLabel = '';
     let selectedFilterDone = 'all';
     let todosData = {};
-    let labelsData = []; // Firebaseから取得するラベル一覧
+    let allLabelsData = {}; // カテゴリ別ラベル { かいもの: [...], おでかけ: [...], そのほか: [...] }
+
+    // 現在のタブのラベル一覧を返す
+    function currentLabels() {
+      return allLabelsData[currentTab] || [];
+    }
 
     // ---- ラベルのFirebase同期 ----
     function initLabels() {
       db.ref('labels').on('value', snapshot => {
-        labelsData = snapshot.val() ? Object.values(snapshot.val()) : [];
+        const val = snapshot.val();
+        if (!val) { allLabelsData = {}; renderLabelBtns(); return; }
+        // 配列またはオブジェクトどちらでも対応
+        allLabelsData = {};
+        Object.keys(val).forEach(cat => {
+          const v = val[cat];
+          if (Array.isArray(v)) {
+            allLabelsData[cat] = v.filter(Boolean);
+          } else if (typeof v === 'object') {
+            allLabelsData[cat] = Object.values(v).filter(Boolean);
+          }
+        });
         renderLabelBtns();
       });
     }
 
     function renderLabelBtns() {
+      const labelsData = currentLabels();
+
       // 入力用ラベルボタン
       const inputBtns = document.getElementById('input-label-btns');
       inputBtns.innerHTML = '';
@@ -346,8 +365,11 @@
     window.addLabel = function() {
       const input = document.getElementById('new-label-input');
       const label = input.value.trim();
-      if (!label || labelsData.includes(label)) { input.value = ''; return; }
-      db.ref('labels').push(label);
+      if (!label) return;
+      const current = allLabelsData[currentTab] || [];
+      if (current.includes(label)) { input.value = ''; return; }
+      const updated = [...current, label];
+      db.ref('labels/' + currentTab).set(updated);
       input.value = '';
     };
 
@@ -356,14 +378,11 @@
     });
 
     function deleteLabel(label) {
-      db.ref('labels').once('value', snapshot => {
-        const entries = snapshot.val();
-        if (!entries) return;
-        const key = Object.keys(entries).find(k => entries[k] === label);
-        if (key) db.ref('labels/' + key).remove();
-        if (selectedInputLabel === label) selectedInputLabel = '';
-        if (selectedFilterLabel === label) selectedFilterLabel = '';
-      });
+      const current = allLabelsData[currentTab] || [];
+      const updated = current.filter(l => l !== label);
+      db.ref('labels/' + currentTab).set(updated);
+      if (selectedInputLabel === label) selectedInputLabel = '';
+      if (selectedFilterLabel === label) { selectedFilterLabel = ''; renderList(); }
     }
 
     // ---- タブ切り替え ----
@@ -371,19 +390,18 @@
       currentTab = tab;
       selectedFilterLabel = '';
       selectedFilterDone = 'all';
+      selectedInputLabel = '';
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
 
-      const isKaimono = tab === 'かいもの';
-      document.getElementById('input-label-btns').classList.toggle('visible', isKaimono);
-      document.getElementById('filter-label-btns').classList.toggle('visible', isKaimono);
+      document.getElementById('input-label-btns').classList.add('visible');
+      document.getElementById('filter-label-btns').classList.add('visible');
       document.getElementById('filter-area').classList.add('visible');
 
-      document.querySelectorAll('#filter-label-btns .label-btn').forEach(b => b.classList.remove('selected'));
-      document.querySelector('#filter-label-btns .label-btn').classList.add('selected');
       document.querySelectorAll('#filter-done-btns .label-btn').forEach(b => b.classList.remove('selected'));
       document.querySelector('#filter-done-btns .label-btn').classList.add('selected');
 
+      renderLabelBtns();
       renderList();
     }
     window.switchTab = switchTab;
@@ -490,11 +508,11 @@
       let editLabelRow = null;
       let editSelectedLabel = todo.label || '';
 
-      if (currentTab === 'かいもの') {
+      if (currentLabels().length > 0) {
         editLabelRow = document.createElement('div');
         editLabelRow.className = 'edit-label-row visible';
         editLabelRow.dataset.selected = editSelectedLabel;
-        ['ラベルなし', ...labelsData].forEach(l => {
+        ['ラベルなし', ...currentLabels()].forEach(l => {
           const val = l === 'ラベルなし' ? '' : l;
           const b = document.createElement('button');
           b.className = 'label-btn' + (editSelectedLabel === val ? ' selected' : '');
@@ -513,8 +531,7 @@
       const save = () => {
         const newText = input.value.trim();
         if (!newText) return;
-        const updates = { text: newText };
-        if (currentTab === 'かいもの') updates.label = editSelectedLabel;
+        const updates = { text: newText, label: editSelectedLabel };
         db.ref('todos/' + id).update(updates);
         if (editLabelRow) editLabelRow.remove();
       };
@@ -545,7 +562,7 @@
       const filtered = Object.values(todosData).filter(t => t.category === currentTab);
       const maxOrder = filtered.length > 0 ? Math.max(...filtered.map(t => t.order ?? 0)) : -1;
       const newTodo = { text, done: false, category: currentTab, order: maxOrder + 1 };
-      if (currentTab === 'かいもの' && selectedInputLabel) newTodo.label = selectedInputLabel;
+      if (selectedInputLabel) newTodo.label = selectedInputLabel;
       db.ref('todos').push(newTodo);
       input.value = '';
     };
