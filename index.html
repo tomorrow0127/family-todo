@@ -157,7 +157,42 @@
     }
     .edit-label-row.visible { display: flex; }
 
-    .empty { text-align: center; color: #bbb; margin-top: 40px; font-size: 0.95rem; }
+    .label-add-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .label-add-row input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 2px solid #d4b8a0;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      outline: none;
+      background: white;
+    }
+    .label-add-row input:focus { border-color: #a0714f; }
+    .label-add-row button {
+      padding: 6px 12px;
+      background: #a0714f;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .label-btn-wrap { display: inline-flex; align-items: center; gap: 2px; }
+    .label-del-btn {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    .label-del-btn:hover { color: #e07070; }
     .conn-status { text-align: center; font-size: 0.75rem; color: #bbb; margin-bottom: 10px; }
   </style>
 </head>
@@ -190,10 +225,10 @@
       </div>
       <div class="label-btns visible" id="input-label-btns">
         <button class="label-btn selected" onclick="selectInputLabel(this, '')">ラベルなし</button>
-        <button class="label-btn" onclick="selectInputLabel(this, 'コストコ')">コストコ</button>
-        <button class="label-btn" onclick="selectInputLabel(this, '無印良品')">無印良品</button>
-        <button class="label-btn" onclick="selectInputLabel(this, 'カルディ')">カルディ</button>
-        <button class="label-btn" onclick="selectInputLabel(this, 'ダイレックス')">ダイレックス</button>
+      </div>
+      <div class="label-add-row" id="label-add-row">
+        <input type="text" id="new-label-input" placeholder="ラベルを追加..." />
+        <button onclick="addLabel()">＋</button>
       </div>
     </div>
 
@@ -202,10 +237,6 @@
       <span class="filter-title">🔍 絞り込み</span>
       <div class="label-btns visible" id="filter-label-btns">
         <button class="label-btn selected" onclick="selectFilterLabel(this, '')">すべて</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, 'コストコ')">コストコ</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, '無印良品')">無印良品</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, 'カルディ')">カルディ</button>
-        <button class="label-btn" onclick="selectFilterLabel(this, 'ダイレックス')">ダイレックス</button>
       </div>
       <div class="label-btns visible" id="filter-done-btns">
         <button class="label-btn selected" onclick="selectFilterDone(this, 'all')">すべて</button>
@@ -239,6 +270,101 @@
     let selectedFilterLabel = '';
     let selectedFilterDone = 'all';
     let todosData = {};
+    let labelsData = []; // Firebaseから取得するラベル一覧
+
+    // ---- ラベルのFirebase同期 ----
+    function initLabels() {
+      db.ref('labels').on('value', snapshot => {
+        labelsData = snapshot.val() ? Object.values(snapshot.val()) : [];
+        renderLabelBtns();
+      });
+    }
+
+    function renderLabelBtns() {
+      // 入力用ラベルボタン
+      const inputBtns = document.getElementById('input-label-btns');
+      inputBtns.innerHTML = '';
+      const noneBtn = document.createElement('button');
+      noneBtn.className = 'label-btn' + (selectedInputLabel === '' ? ' selected' : '');
+      noneBtn.textContent = 'ラベルなし';
+      noneBtn.onclick = () => selectInputLabel(noneBtn, '');
+      inputBtns.appendChild(noneBtn);
+
+      labelsData.forEach(label => {
+        const wrap = document.createElement('span');
+        wrap.className = 'label-btn-wrap';
+        const btn = document.createElement('button');
+        btn.className = 'label-btn' + (selectedInputLabel === label ? ' selected' : '');
+        btn.textContent = label;
+        btn.onclick = () => selectInputLabel(btn, label);
+        const delBtn = document.createElement('button');
+        delBtn.className = 'label-del-btn';
+        delBtn.textContent = '✕';
+        delBtn.title = '削除';
+        delBtn.onclick = (e) => { e.stopPropagation(); deleteLabel(label); };
+        wrap.appendChild(btn);
+        wrap.appendChild(delBtn);
+        inputBtns.appendChild(wrap);
+      });
+
+      // 絞り込み用ラベルボタン
+      const filterBtns = document.getElementById('filter-label-btns');
+      filterBtns.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.className = 'label-btn' + (selectedFilterLabel === '' ? ' selected' : '');
+      allBtn.textContent = 'すべて';
+      allBtn.onclick = () => selectFilterLabel(allBtn, '');
+      filterBtns.appendChild(allBtn);
+
+      labelsData.forEach(label => {
+        const btn = document.createElement('button');
+        btn.className = 'label-btn' + (selectedFilterLabel === label ? ' selected' : '');
+        btn.textContent = label;
+        btn.onclick = () => selectFilterLabel(btn, label);
+        filterBtns.appendChild(btn);
+      });
+
+      // 編集中のedit-label-rowも更新
+      document.querySelectorAll('.edit-label-row').forEach(row => {
+        const currentSelected = row.dataset.selected || '';
+        row.innerHTML = '';
+        ['ラベルなし', ...labelsData].forEach(l => {
+          const val = l === 'ラベルなし' ? '' : l;
+          const b = document.createElement('button');
+          b.className = 'label-btn' + (currentSelected === val ? ' selected' : '');
+          b.textContent = l;
+          b.addEventListener('click', () => {
+            row.dataset.selected = val;
+            row.querySelectorAll('.label-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected');
+          });
+          row.appendChild(b);
+        });
+      });
+    }
+
+    window.addLabel = function() {
+      const input = document.getElementById('new-label-input');
+      const label = input.value.trim();
+      if (!label || labelsData.includes(label)) { input.value = ''; return; }
+      db.ref('labels').push(label);
+      input.value = '';
+    };
+
+    document.getElementById('new-label-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.addLabel();
+    });
+
+    function deleteLabel(label) {
+      db.ref('labels').once('value', snapshot => {
+        const entries = snapshot.val();
+        if (!entries) return;
+        const key = Object.keys(entries).find(k => entries[k] === label);
+        if (key) db.ref('labels/' + key).remove();
+        if (selectedInputLabel === label) selectedInputLabel = '';
+        if (selectedFilterLabel === label) selectedFilterLabel = '';
+      });
+    }
 
     // ---- タブ切り替え ----
     function switchTab(tab, btn) {
@@ -265,14 +391,12 @@
     // ---- ラベル選択 ----
     window.selectInputLabel = function(btn, label) {
       selectedInputLabel = label;
-      document.querySelectorAll('#input-label-btns .label-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
+      renderLabelBtns();
     };
 
     window.selectFilterLabel = function(btn, label) {
       selectedFilterLabel = label;
-      document.querySelectorAll('#filter-label-btns .label-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
+      renderLabelBtns();
       renderList();
     };
 
@@ -369,13 +493,15 @@
       if (currentTab === 'かいもの') {
         editLabelRow = document.createElement('div');
         editLabelRow.className = 'edit-label-row visible';
-        ['ラベルなし','コストコ','無印良品','カルディ','ダイレックス'].forEach(l => {
+        editLabelRow.dataset.selected = editSelectedLabel;
+        ['ラベルなし', ...labelsData].forEach(l => {
           const val = l === 'ラベルなし' ? '' : l;
           const b = document.createElement('button');
           b.className = 'label-btn' + (editSelectedLabel === val ? ' selected' : '');
           b.textContent = l;
           b.addEventListener('click', () => {
             editSelectedLabel = val;
+            editLabelRow.dataset.selected = val;
             editLabelRow.querySelectorAll('.label-btn').forEach(x => x.classList.remove('selected'));
             b.classList.add('selected');
           });
@@ -445,6 +571,7 @@
     });
 
     function startApp() {
+      initLabels();
       db.ref('todos').on('value', snapshot => {
         todosData = snapshot.val() || {};
         document.getElementById('connStatus').textContent = '✅ 接続済み';
