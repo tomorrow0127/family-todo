@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>家族のTodo</title>
 
-  <!-- LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <!-- Firebase compat版（連絡ボードと同じ） -->
+  <!-- Firebase compat版 -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -160,17 +158,23 @@
     .edit-label-row.visible { display: flex; }
 
     .empty { text-align: center; color: #bbb; margin-top: 40px; font-size: 0.95rem; }
-    .status-msg { text-align: center; padding: 60px 0; color: #a89b8c; font-size: 0.95rem; }
     .conn-status { text-align: center; font-size: 0.75rem; color: #bbb; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <div class="status-msg" id="statusMsg">読み込み中...</div>
+  <!-- パスワード画面 -->
+  <div id="passwordScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px;">
+    <h1 style="font-size:1.4rem;color:#3d2b1f;">🏠 家族のTodo</h1>
+    <input type="password" id="passwordInput" placeholder="パスワードを入力"
+      style="padding:12px;border:2px solid #d4b8a0;border-radius:8px;font-size:1rem;width:200px;text-align:center;outline:none;" />
+    <button onclick="checkPassword()"
+      style="padding:12px 24px;background:#a0714f;color:white;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">ログイン</button>
+    <p id="passwordError" style="color:#e07070;font-size:0.9rem;display:none;">パスワードが違います</p>
+  </div>
 
   <div id="app" style="display:none;">
     <h1>🏠 家族のTodo</h1>
-    <div class="user-name" id="userName"></div>
     <div class="conn-status" id="connStatus">接続中...</div>
 
     <div class="tabs">
@@ -216,8 +220,6 @@
 
   <script>
     /* ========== 設定 ========== */
-    const LIFF_ID = "2010847371-usyD2tAG";
-
     const firebaseConfig = {
       apiKey: "AIzaSyDHjpD3vC_bl_vEoymo1ga90Fg2dj3PdGc",
       authDomain: "family-todo-tomorrow.firebaseapp.com",
@@ -426,33 +428,29 @@
       if (e.key === 'Enter') window.addTodo();
     });
 
-    // ---- アプリ起動 ----
-    function showApp(displayName) {
-      document.getElementById('statusMsg').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      document.getElementById('userName').textContent = displayName ? `👤 ${displayName}` : '';
+    // ---- パスワード認証 ----
+    window.checkPassword = function() {
+      const input = document.getElementById('passwordInput').value;
+      if (input === 'chi') {
+        document.getElementById('passwordScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        startApp();
+      } else {
+        document.getElementById('passwordError').style.display = 'block';
+      }
+    };
 
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.checkPassword();
+    });
+
+    function startApp() {
       db.ref('todos').on('value', snapshot => {
         todosData = snapshot.val() || {};
         document.getElementById('connStatus').textContent = '✅ 接続済み';
         renderList();
       });
     }
-
-    // ---- LIFF初期化 ----
-    liff.init({ liffId: LIFF_ID })
-      .then(() => {
-        if (liff.isLoggedIn()) {
-          liff.getProfile().then(profile => showApp(profile.displayName));
-        } else {
-          liff.login();
-        }
-      })
-      .catch(err => {
-        console.error('LIFF init error', err);
-        // LIFF外（PCブラウザ等）でも動くようにフォールバック
-        showApp('');
-      });
   </script>
 
 </body>
