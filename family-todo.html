@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>家族のTodo</title>
+
+  <!-- Firebase compat版 -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      background: #f5f0eb;
+      min-height: 100vh;
+      padding: 20px 16px 60px;
+      color: #3d2b1f;
+    }
+
+    h1 { text-align: center; font-size: 1.3rem; color: #3d2b1f; margin-bottom: 4px; }
+    .user-name { text-align: center; font-size: 0.85rem; color: #a89b8c; margin-bottom: 16px; }
+
+    /* カテゴリタブ */
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab {
+      flex: 1;
+      min-width: 70px;
+      padding: 10px;
+      border: 2px solid #d4b8a0;
+      border-radius: 10px;
+      background: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: center;
+      color: #a0714f;
+      font-weight: bold;
+    }
+    .tab.active { background: #a0714f; color: white; border-color: #a0714f; }
+
+    /* 入力エリア */
+    .input-area { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .input-row { display: flex; gap: 8px; }
+    .input-area input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #d4b8a0;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fff;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .input-area input[type="text"]:focus { border-color: #a0714f; }
+    .input-area button {
+      padding: 12px 16px;
+      background: #a0714f;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ラベルボタン群 */
+    .label-btns { display: none; flex-wrap: wrap; gap: 6px; }
+    .label-btns.visible { display: flex; }
+    .label-btn {
+      padding: 3px 10px;
+      border: 2px solid #d4b8a0;
+      border-radius: 16px;
+      background: white;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      cursor: pointer;
+      color: #7d5538;
+    }
+    .label-btn.selected { background: #a0714f; color: white; border-color: #a0714f; }
+
+    /* 絞り込みエリア */
+    .filter-area { display: none; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .filter-area.visible { display: flex; }
+    .filter-title { font-size: 0.78rem; color: #a0714f; font-weight: bold; }
+
+    /* Todoリスト */
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 12px 14px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .todo-item input[type="checkbox"] {
+      width: 22px; height: 22px;
+      cursor: pointer;
+      accent-color: #a0714f;
+      flex-shrink: 0;
+    }
+    .todo-item .todo-text { flex: 1; font-size: 1rem; color: #3d2b1f; }
+    .todo-item.done .todo-text { text-decoration: line-through; color: #aaa; }
+
+    .todo-label-tag {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #f0e6da;
+      color: #7d5538;
+      white-space: nowrap;
+    }
+
+    .todo-controls { display: flex; flex-direction: column; gap: 2px; }
+    .move-btn {
+      background: none;
+      border: 1px solid #d4b8a0;
+      border-radius: 4px;
+      width: 26px; height: 22px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      color: #a0714f;
+      line-height: 1;
+    }
+    .move-btn:disabled { opacity: 0.3; cursor: default; }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+    .icon-btn:hover { color: #a0714f; }
+    .icon-btn.delete:hover { color: #e07070; }
+
+    .todo-item .edit-input {
+      flex: 1;
+      padding: 4px 8px;
+      border: 2px solid #a0714f;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .edit-label-row {
+      display: none;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px 14px;
+      background: #faf6f2;
+      border-radius: 0 0 10px 10px;
+      margin-top: -10px;
+    }
+    .edit-label-row.visible { display: flex; }
+
+    .label-add-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .label-add-row input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 2px solid #d4b8a0;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      outline: none;
+      background: white;
+    }
+    .label-add-row input:focus { border-color: #a0714f; }
+    .label-add-row button {
+      padding: 6px 12px;
+      background: #a0714f;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .label-btn-wrap { display: inline-flex; align-items: center; gap: 2px; }
+    .label-del-btn {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    .label-del-btn:hover { color: #e07070; }
+    .conn-status { text-align: center; font-size: 0.75rem; color: #bbb; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- パスワード画面 -->
+  <div id="passwordScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px;">
+    <h1 style="font-size:1.4rem;color:#3d2b1f;">🏠 家族のTodo</h1>
+    <input type="password" id="passwordInput" placeholder="パスワードを入力"
+      style="padding:12px;border:2px solid #d4b8a0;border-radius:8px;font-size:1rem;width:200px;text-align:center;outline:none;" />
+    <button onclick="checkPassword()"
+      style="padding:12px 24px;background:#a0714f;color:white;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">ログイン</button>
+    <p id="passwordError" style="color:#e07070;font-size:0.9rem;display:none;">パスワードが違います</p>
+  </div>
+
+  <div id="app" style="display:none;">
+    <h1>🏠 家族のTodo</h1>
+    <div class="conn-status" id="connStatus">接続中...</div>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-かいもの" onclick="switchTab('かいもの', this)">🛒 かいもの</button>
+      <button class="tab" id="tab-おでかけ" onclick="switchTab('おでかけ', this)">🚗 おでかけ</button>
+      <button class="tab" id="tab-そのほか" onclick="switchTab('そのほか', this)">📝 そのほか</button>
+      <button class="tab" id="tab-しゅってん" onclick="switchTab('しゅってん', this)">🎪 しゅってん</button>
+    </div>
+
+    <!-- 入力エリア -->
+    <div class="input-area">
+      <div class="input-row">
+        <input type="text" id="new-todo" placeholder="やることを入力..." />
+        <button onclick="addTodo()">追加</button>
+      </div>
+      <div class="label-btns visible" id="input-label-btns">
+        <button class="label-btn selected" onclick="selectInputLabel(this, '')">ラベルなし</button>
+      </div>
+      <div class="label-add-row" id="label-add-row">
+        <input type="text" id="new-label-input" placeholder="ラベルを追加..." />
+        <button onclick="addLabel()">＋</button>
+      </div>
+    </div>
+
+    <!-- 絞り込みエリア -->
+    <div class="filter-area visible" id="filter-area">
+      <span class="filter-title">🔍 絞り込み</span>
+      <div class="label-btns visible" id="filter-label-btns">
+        <button class="label-btn selected" onclick="selectFilterLabel(this, '')">すべて</button>
+      </div>
+      <div class="label-btns visible" id="filter-done-btns">
+        <button class="label-btn selected" onclick="selectFilterDone(this, 'all')">すべて</button>
+        <button class="label-btn" onclick="selectFilterDone(this, 'undone')">未チェック</button>
+        <button class="label-btn" onclick="selectFilterDone(this, 'done')">チェック済み</button>
+      </div>
+    </div>
+
+    <ul class="todo-list" id="todo-list"></ul>
+    <p class="empty" id="empty-msg" style="display:none">やることはありません 🎉</p>
+  </div>
+
+  <script>
+    /* ========== 設定 ========== */
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHjpD3vC_bl_vEoymo1ga90Fg2dj3PdGc",
+      authDomain: "family-todo-tomorrow.firebaseapp.com",
+      databaseURL: "https://family-todo-tomorrow-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "family-todo-tomorrow",
+      storageBucket: "family-todo-tomorrow.firebasestorage.app",
+      messagingSenderId: "705055892377",
+      appId: "1:705055892377:web:ff306a6c7f154bf4b4e908"
+    };
+    /* ========================== */
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentTab = 'かいもの';
+    let selectedInputLabel = '';
+    let selectedFilterLabel = '';
+    let selectedFilterDone = 'all';
+    let todosData = {};
+    let allLabelsData = {}; // カテゴリ別ラベル { かいもの: [...], おでかけ: [...], そのほか: [...], しゅってん: [...] }
+
+    // 現在のタブのラベル一覧を返す
+    function currentLabels() {
+      return allLabelsData[currentTab] || [];
+    }
+
+    // ---- ラベルのFirebase同期 ----
+    function initLabels() {
+      db.ref('labels').on('value', snapshot => {
+        const val = snapshot.val();
+        if (!val) { allLabelsData = {}; renderLabelBtns(); return; }
+        // 配列またはオブジェクトどちらでも対応
+        allLabelsData = {};
+        Object.keys(val).forEach(cat => {
+          const v = val[cat];
+          if (Array.isArray(v)) {
+            allLabelsData[cat] = v.filter(Boolean);
+          } else if (typeof v === 'object') {
+            allLabelsData[cat] = Object.values(v).filter(Boolean);
+          }
+        });
+        renderLabelBtns();
+      });
+    }
+
+    function renderLabelBtns() {
+      const labelsData = currentLabels();
+
+      // 入力用ラベルボタン
+      const inputBtns = document.getElementById('input-label-btns');
+      inputBtns.innerHTML = '';
+      const noneBtn = document.createElement('button');
+      noneBtn.className = 'label-btn' + (selectedInputLabel === '' ? ' selected' : '');
+      noneBtn.textContent = 'ラベルなし';
+      noneBtn.onclick = () => selectInputLabel(noneBtn, '');
+      inputBtns.appendChild(noneBtn);
+
+      labelsData.forEach(label => {
+        const wrap = document.createElement('span');
+        wrap.className = 'label-btn-wrap';
+        const btn = document.createElement('button');
+        btn.className = 'label-btn' + (selectedInputLabel === label ? ' selected' : '');
+        btn.textContent = label;
+        btn.onclick = () => selectInputLabel(btn, label);
+        const delBtn = document.createElement('button');
+        delBtn.className = 'label-del-btn';
+        delBtn.textContent = '✕';
+        delBtn.title = '削除';
+        delBtn.onclick = (e) => { e.stopPropagation(); deleteLabel(label); };
+        wrap.appendChild(btn);
+        wrap.appendChild(delBtn);
+        inputBtns.appendChild(wrap);
+      });
+
+      // 絞り込み用ラベルボタン
+      const filterBtns = document.getElementById('filter-label-btns');
+      filterBtns.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.className = 'label-btn' + (selectedFilterLabel === '' ? ' selected' : '');
+      allBtn.textContent = 'すべて';
+      allBtn.onclick = () => selectFilterLabel(allBtn, '');
+      filterBtns.appendChild(allBtn);
+
+      labelsData.forEach(label => {
+        const btn = document.createElement('button');
+        btn.className = 'label-btn' + (selectedFilterLabel === label ? ' selected' : '');
+        btn.textContent = label;
+        btn.onclick = () => selectFilterLabel(btn, label);
+        filterBtns.appendChild(btn);
+      });
+
+      // 編集中のedit-label-rowも更新
+      document.querySelectorAll('.edit-label-row').forEach(row => {
+        const currentSelected = row.dataset.selected || '';
+        row.innerHTML = '';
+        ['ラベルなし', ...labelsData].forEach(l => {
+          const val = l === 'ラベルなし' ? '' : l;
+          const b = document.createElement('button');
+          b.className = 'label-btn' + (currentSelected === val ? ' selected' : '');
+          b.textContent = l;
+          b.addEventListener('click', () => {
+            row.dataset.selected = val;
+            row.querySelectorAll('.label-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected');
+          });
+          row.appendChild(b);
+        });
+      });
+    }
+
+    window.addLabel = function() {
+      const input = document.getElementById('new-label-input');
+      const label = input.value.trim();
+      if (!label) return;
+      const current = allLabelsData[currentTab] || [];
+      if (current.includes(label)) { input.value = ''; return; }
+      const updated = [...current, label];
+      db.ref('labels/' + currentTab).set(updated);
+      input.value = '';
+    };
+
+    document.getElementById('new-label-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.addLabel();
+    });
+
+    function deleteLabel(label) {
+      const current = allLabelsData[currentTab] || [];
+      const updated = current.filter(l => l !== label);
+      db.ref('labels/' + currentTab).set(updated);
+      if (selectedInputLabel === label) selectedInputLabel = '';
+      if (selectedFilterLabel === label) { selectedFilterLabel = ''; renderList(); }
+    }
+
+    // ---- タブ切り替え ----
+    function switchTab(tab, btn) {
+      currentTab = tab;
+      selectedFilterLabel = '';
+      selectedFilterDone = 'all';
+      selectedInputLabel = '';
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.getElementById('input-label-btns').classList.add('visible');
+      document.getElementById('filter-label-btns').classList.add('visible');
+      document.getElementById('filter-area').classList.add('visible');
+
+      document.querySelectorAll('#filter-done-btns .label-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelector('#filter-done-btns .label-btn').classList.add('selected');
+
+      renderLabelBtns();
+      renderList();
+    }
+    window.switchTab = switchTab;
+
+    // ---- ラベル選択 ----
+    window.selectInputLabel = function(btn, label) {
+      selectedInputLabel = label;
+      renderLabelBtns();
+    };
+
+    window.selectFilterLabel = function(btn, label) {
+      selectedFilterLabel = label;
+      renderLabelBtns();
+      renderList();
+    };
+
+    window.selectFilterDone = function(btn, value) {
+      selectedFilterDone = value;
+      document.querySelectorAll('#filter-done-btns .label-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      renderList();
+    };
+
+    // ---- リスト描画 ----
+    function renderList() {
+      const list = document.getElementById('todo-list');
+      const emptyMsg = document.getElementById('empty-msg');
+      list.innerHTML = '';
+
+      let filtered = Object.entries(todosData)
+        .filter(([, t]) => t.category === currentTab)
+        .sort((a, b) => (a[1].order ?? 0) - (b[1].order ?? 0));
+
+      if (selectedFilterLabel) filtered = filtered.filter(([, t]) => t.label === selectedFilterLabel);
+      if (selectedFilterDone === 'done') filtered = filtered.filter(([, t]) => t.done);
+      else if (selectedFilterDone === 'undone') filtered = filtered.filter(([, t]) => !t.done);
+
+      if (filtered.length === 0) { emptyMsg.style.display = 'block'; return; }
+      emptyMsg.style.display = 'none';
+
+      filtered.forEach(([id, todo], index) => {
+        const li = document.createElement('li');
+        li.className = 'todo-item' + (todo.done ? ' done' : '');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.done;
+        checkbox.addEventListener('change', () => {
+          db.ref('todos/' + id).update({ done: checkbox.checked });
+        });
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'todo-text';
+        textSpan.textContent = todo.text;
+
+        const tag = document.createElement('span');
+        tag.className = 'todo-label-tag';
+        tag.style.display = todo.label ? '' : 'none';
+        tag.textContent = todo.label || '';
+
+        const controls = document.createElement('div');
+        controls.className = 'todo-controls';
+        const upBtn = document.createElement('button');
+        upBtn.className = 'move-btn'; upBtn.textContent = '▲';
+        upBtn.disabled = index === 0;
+        upBtn.addEventListener('click', () => moveItem(filtered, index, -1));
+        const downBtn = document.createElement('button');
+        downBtn.className = 'move-btn'; downBtn.textContent = '▼';
+        downBtn.disabled = index === filtered.length - 1;
+        downBtn.addEventListener('click', () => moveItem(filtered, index, 1));
+        controls.appendChild(upBtn);
+        controls.appendChild(downBtn);
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'icon-btn'; editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', () => startEdit(li, id, todo));
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'icon-btn delete'; delBtn.textContent = '✕';
+        delBtn.addEventListener('click', () => db.ref('todos/' + id).remove());
+
+        li.appendChild(checkbox);
+        li.appendChild(textSpan);
+        li.appendChild(tag);
+        li.appendChild(controls);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    // ---- 編集 ----
+    function startEdit(li, id, todo) {
+      const textSpan = li.querySelector('.todo-text');
+      const tag = li.querySelector('.todo-label-tag');
+      const editBtn = li.querySelectorAll('.icon-btn')[0];
+
+      const input = document.createElement('input');
+      input.type = 'text'; input.className = 'edit-input'; input.value = todo.text;
+      li.replaceChild(input, textSpan);
+      tag.style.display = 'none';
+      editBtn.textContent = '💾';
+
+      let editLabelRow = null;
+      let editSelectedLabel = todo.label || '';
+
+      if (currentLabels().length > 0) {
+        editLabelRow = document.createElement('div');
+        editLabelRow.className = 'edit-label-row visible';
+        editLabelRow.dataset.selected = editSelectedLabel;
+        ['ラベルなし', ...currentLabels()].forEach(l => {
+          const val = l === 'ラベルなし' ? '' : l;
+          const b = document.createElement('button');
+          b.className = 'label-btn' + (editSelectedLabel === val ? ' selected' : '');
+          b.textContent = l;
+          b.addEventListener('click', () => {
+            editSelectedLabel = val;
+            editLabelRow.dataset.selected = val;
+            editLabelRow.querySelectorAll('.label-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected');
+          });
+          editLabelRow.appendChild(b);
+        });
+        li.after(editLabelRow);
+      }
+
+      const save = () => {
+        const newText = input.value.trim();
+        if (!newText) return;
+        const updates = { text: newText, label: editSelectedLabel };
+        db.ref('todos/' + id).update(updates);
+        if (editLabelRow) editLabelRow.remove();
+      };
+
+      editBtn.replaceWith(editBtn.cloneNode(true));
+      const newEditBtn = li.querySelectorAll('.icon-btn')[0];
+      newEditBtn.textContent = '💾';
+      newEditBtn.addEventListener('click', save);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+      input.focus();
+    }
+
+    // ---- 並び替え ----
+    function moveItem(filtered, index, direction) {
+      const ti = index + direction;
+      if (ti < 0 || ti >= filtered.length) return;
+      const [idA, tA] = filtered[index];
+      const [idB, tB] = filtered[ti];
+      db.ref('todos/' + idA).update({ order: tB.order ?? ti });
+      db.ref('todos/' + idB).update({ order: tA.order ?? index });
+    }
+
+    // ---- Todo追加 ----
+    window.addTodo = function() {
+      const input = document.getElementById('new-todo');
+      const text = input.value.trim();
+      if (!text) return;
+      const filtered = Object.values(todosData).filter(t => t.category === currentTab);
+      const maxOrder = filtered.length > 0 ? Math.max(...filtered.map(t => t.order ?? 0)) : -1;
+      const newTodo = { text, done: false, category: currentTab, order: maxOrder + 1 };
+      if (selectedInputLabel) newTodo.label = selectedInputLabel;
+      db.ref('todos').push(newTodo);
+      input.value = '';
+    };
+
+    document.getElementById('new-todo').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.addTodo();
+    });
+
+    // ---- パスワード認証 ----
+    window.checkPassword = function() {
+      const input = document.getElementById('passwordInput').value;
+      if (input === 'chi') {
+        document.getElementById('passwordScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        startApp();
+      } else {
+        document.getElementById('passwordError').style.display = 'block';
+      }
+    };
+
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.checkPassword();
+    });
+
+    function startApp() {
+      initLabels();
+      db.ref('todos').on('value', snapshot => {
+        todosData = snapshot.val() || {};
+        document.getElementById('connStatus').textContent = '✅ 接続済み';
+        renderList();
+      });
+    }
+  </script>
+
+</body>
+</html>
