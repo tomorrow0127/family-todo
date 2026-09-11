@@ -24,9 +24,10 @@
     .user-name { text-align: center; font-size: 0.85rem; color: #a89b8c; margin-bottom: 16px; }
 
     /* カテゴリタブ */
-    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .tab {
       flex: 1;
+      min-width: 70px;
       padding: 10px;
       border: 2px solid #d4b8a0;
       border-radius: 10px;
@@ -68,11 +69,12 @@
     .label-btns { display: none; flex-wrap: wrap; gap: 6px; }
     .label-btns.visible { display: flex; }
     .label-btn {
-      padding: 6px 12px;
+      padding: 3px 10px;
       border: 2px solid #d4b8a0;
-      border-radius: 20px;
+      border-radius: 16px;
       background: white;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
+      line-height: 1.4;
       cursor: pointer;
       color: #7d5538;
     }
@@ -216,6 +218,7 @@
       <button class="tab active" id="tab-かいもの" onclick="switchTab('かいもの', this)">🛒 かいもの</button>
       <button class="tab" id="tab-おでかけ" onclick="switchTab('おでかけ', this)">🚗 おでかけ</button>
       <button class="tab" id="tab-そのほか" onclick="switchTab('そのほか', this)">📝 そのほか</button>
+      <button class="tab" id="tab-しゅってん" onclick="switchTab('しゅってん', this)">🎪 しゅってん</button>
     </div>
 
     <!-- 入力エリア -->
@@ -271,7 +274,7 @@
     let selectedFilterLabel = '';
     let selectedFilterDone = 'all';
     let todosData = {};
-    let allLabelsData = {}; // カテゴリ別ラベル { かいもの: [...], おでかけ: [...], そのほか: [...] }
+    let allLabelsData = {}; // カテゴリ別ラベル { かいもの: [...], おでかけ: [...], そのほか: [...], しゅってん: [...] }
 
     // 現在のタブのラベル一覧を返す
     function currentLabels() {
