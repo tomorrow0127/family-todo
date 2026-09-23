@@ -79,6 +79,17 @@
     }
     .label-btn.selected { background: #a0714f; color: white; border-color: #a0714f; }
 
+    /* 入力エリアのラベル選択ボタンはよりコンパクトに */
+    #input-label-btns .label-btn,
+    .edit-label-row .label-btn {
+      padding: 3px 9px;
+      font-size: 0.76rem;
+      border-width: 1.5px;
+    }
+    .label-btn-wrap .label-del-btn {
+      font-size: 0.68rem;
+    }
+
     /* 絞り込みエリア */
     .filter-area { display: none; flex-direction: column; gap: 6px; margin-bottom: 14px; }
     .filter-area.visible { display: flex; }
